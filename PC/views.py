@@ -6,14 +6,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import PC
-from .serializers import PCSerializer
+from .serializers import PCSerializer, EasyPCSerializer
 
 
 # Create your views here.
 
 
 def index(request):
-    return HttpResponse('Hello')
+    return HttpResponse('Hello, \nThis is a Django Rest Framework Project')
+
+class ListPCAPIView(generics.ListAPIView):
+    queryset = PC.objects.all()
+    serializer_class = ListPCSerializer
 
 
 class PCAPIView(APIView):

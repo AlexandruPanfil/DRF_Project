@@ -8,10 +8,10 @@ from rest_framework import serializers
 
 
 # My serializer
-# class PCSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = PC
-#         fields = ('title', 'content', 'cat_id')
+class ListPCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PC
+        fields = ('title', 'content', 'cat_id')
 
 
 class PCSerializer(serializers.Serializer):
