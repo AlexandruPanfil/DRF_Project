@@ -22,7 +22,21 @@ class PCSerializer(serializers.Serializer):
     is_published = serializers.BooleanField(default=True)
     cat_id = serializers.IntegerField()
 
+    # This method will automatically save the data to db
+    # It works with save() method of serializer in views.py
+    def create(self, validated_data):
+        return PC.objects.create(**validated_data)
 
+    # This method will update the data to db, if instance have no update (in all fields I mean) it will save the old ones
+    # It works with put() method of APIView in views.py
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.content = validated_data.get('content', instance.content)
+        instance.time_updated = validated_data.get('time_updated', instance.time_updated)
+        instance.is_published = validated_data.get('is_published', instance.is_published)
+        instance.cat_id = validated_data.get('cat_id', instance.cat_id)
+        instance.save()
+        return instance
 
 
 # Model for test, just with 2 fields
