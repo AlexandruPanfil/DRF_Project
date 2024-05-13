@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import PC
-from .serializers import PCSerializer, EasyPCSerializer
+from .serializers import PCSerializer, ListPCSerializer
 
 
 # Create your views here.
