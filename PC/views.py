@@ -18,18 +18,24 @@ def index(request):
 
 class PCAPIView(APIView):
     def get(self, request):
-        list_of_objects = PC.objects.all().values()
-        return Response({'title': 'All Objects', 'objects': list_of_objects,})
+        # list_of_objects = PC.objects.all().values()
+        # return Response({'title': 'All Objects', 'objects': list_of_objects,})
+        list_of_objects = PC.objects.all()
+        return Response({'posts': PCSerializer(list_of_objects, many=True).data})
+
 
     def post(self, request):
         try:
+            serializer = PCSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
             post_new = PC.objects.create(
-                title = request.data['title'],
-                content = request.data['content'],
-                cat_id = request.data['cat_id'],
+                title=request.data['title'],
+                content=request.data['content'],
+                cat_id=request.data['cat_id'],
                 )
             status_code = 201
-            return Response({'post': model_to_dict(post_new), 'success': status_code, })
+            return Response({'post': PCSerializer(post_new).data, 'success': status_code, })
         except Exception as e:
             return ({'Exception': e})
 
