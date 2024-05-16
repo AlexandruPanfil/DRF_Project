@@ -8,10 +8,11 @@ from rest_framework import serializers
 
 
 # My serializer
-class ListPCSerializer(serializers.ModelSerializer):
+# class Meta is a class that use a model in Serializer, you can select wich fields do you need or use __all__ to access all fields
+class MetaPCSerializer(serializers.ModelSerializer):
     class Meta:
         model = PC
-        fields = ('title', 'content', 'cat_id')
+        fields = ('title', 'content', 'cat')
 
 
 class PCSerializer(serializers.Serializer):

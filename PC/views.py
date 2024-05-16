@@ -1,12 +1,14 @@
 from django.forms import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import mixins
+from rest_framework.viewsets import GenericViewSet
 
 from .models import PC
-from .serializers import PCSerializer, ListPCSerializer
+from .serializers import PCSerializer, MetaPCSerializer
 
 
 # Create your views here.
@@ -15,11 +17,44 @@ from .serializers import PCSerializer, ListPCSerializer
 def index(request):
     return HttpResponse('Hello, \nThis is a Django Rest Framework Project')
 
+# In case that we will have DRY code we will use ViewSet, it's already a done class with all functionality
+# Like this one, ModelViewSet, it has all the functionality for the model
+class ViewSetPCAPIView(viewsets.ModelViewSet):
+    queryset = PC.objects.all()
+    serializer_class = MetaPCSerializer
+
+# This is a more advanced ViewSet, here you can use default mixins of Rest_Framework and choose wich one you want to use
+class ViewSetUpdatePCAPIView(mixins.CreateModelMixin,    # For Create an object in db
+                             mixins.RetrieveModelMixin,  # For Read-only an object from db
+                             mixins.UpdateModelMixin,    # For Update the object in db
+                             mixins.DestroyModelMixin,   # For Delete the object in db
+                             mixins.ListModelMixin,      # For View all the objects in db
+                             GenericViewSet):            # Generic ViewSet :)
+
+    queryset = PC.objects.all()
+    serializer_class = MetaPCSerializer
+
+
+# ListAPIView is working only with get request
+# ListCreateAPIView have the same performance as ListAPIView and can create one more instance (working with get and post requests)
 class ListPCAPIView(generics.ListAPIView):
     queryset = PC.objects.all()
-    serializer_class = ListPCSerializer
+    serializer_class = MetaPCSerializer
+
+# UpdateAPIView is working with put and patch requests
+class UpdatePCAPIView(generics.UpdateAPIView):
+    queryset = PC.objects.all()
+    serializer_class = MetaPCSerializer
+
+# RetrieveUpdateDestroyAPIView is a multi-functional API with get, put and delete requests
+# (better to check it in browser, there is a better look with all requests)
+class DetailedPCAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PC.objects.all()
+    serializer_class = MetaPCSerializer
 
 
+# APIView is a general API, this is the base of all others, you can manage as you want,
+# But you should declare all the methods and logic in this instance
 class PCAPIView(APIView):
     def get(self, request):
         # list_of_objects = PC.objects.all().values()
