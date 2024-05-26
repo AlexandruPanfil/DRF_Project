@@ -32,6 +32,7 @@ urlpatterns = [
     re_path(r'^auth/', include('djoser.urls.authtoken')),
 
     # Simple JWT
+    # This API are making JWT Tokens, one is creating, second is refreshing and last one verify
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
