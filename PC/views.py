@@ -11,6 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 
 from .models import PC, Category
+from .paginations import SmallSetPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import PCSerializer, MetaPCSerializer
 
@@ -65,7 +66,7 @@ class ListPCAPIView(generics.ListAPIView):
     queryset = PC.objects.all()
     serializer_class = MetaPCSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-
+    pagination_class = SmallSetPagination
 
 # UpdateAPIView is working with put and patch requests
 class UpdatePCAPIView(generics.RetrieveUpdateAPIView):
