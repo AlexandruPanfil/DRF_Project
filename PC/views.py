@@ -2,12 +2,16 @@ from django.forms import model_to_dict
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import generics, status, viewsets
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 
-from .models import PC
+from .models import PC, Category
+from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import PCSerializer, MetaPCSerializer
 
 
@@ -23,7 +27,26 @@ class ViewSetPCAPIView(viewsets.ModelViewSet):
     queryset = PC.objects.all()
     serializer_class = MetaPCSerializer
 
-# This is a more advanced ViewSet, here you can use default mixins of Rest_Framework and choose wich one you want to use
+    # @action is from Router, it gets methods of request what will be used (in our case it's 'get' )
+    # http://127.0.0.1:8000/api/v1/router/categories/
+    @action(methods=['get', ], detail=False)
+    def categories(self, request):
+        cats = Category.objects.all()
+        return Response({'Names': [c.name for c in cats]})
+        # If you want all objetcs do not forget to use .values() after you select all onjects in that model
+        # cats = Category.objects.all().values()
+        # return Response({'Category': cats}, )
+
+    # detail is for more details, like in this case
+    # http://127.0.0.1:8000/api/v1/router/{pk}/detailed/
+    @action(methods=['get'], detail=True)
+    def detailed(self, reqeust, pk=None):
+        cats = Category.objects.get(pk=pk)
+        return Response({'Category': cats.name})
+
+
+# This is a more advanced ViewSet, here you can use default mixins of Rest_Framework
+# and choose wich one you want to use
 class ViewSetUpdatePCAPIView(mixins.CreateModelMixin,    # For Create an object in db
                              mixins.RetrieveModelMixin,  # For Read-only an object from db
                              mixins.UpdateModelMixin,    # For Update the object in db
@@ -36,15 +59,28 @@ class ViewSetUpdatePCAPIView(mixins.CreateModelMixin,    # For Create an object 
 
 
 # ListAPIView is working only with get request
-# ListCreateAPIView have the same performance as ListAPIView and can create one more instance (working with get and post requests)
+# ListCreateAPIView have the same performance as ListAPIView and
+# can create one more instance (working with get and post requests)
 class ListPCAPIView(generics.ListAPIView):
     queryset = PC.objects.all()
     serializer_class = MetaPCSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
 
 # UpdateAPIView is working with put and patch requests
-class UpdatePCAPIView(generics.UpdateAPIView):
+class UpdatePCAPIView(generics.RetrieveUpdateAPIView):
     queryset = PC.objects.all()
     serializer_class = MetaPCSerializer
+    permission_classes = (IsOwnerOrReadOnly, )
+    authentication_classes = (TokenAuthentication, )
+
+
+# DestroyAPIView is working with delete request
+class DeletePCAPIView(generics.RetrieveDestroyAPIView):
+    queryset = PC.objects.all()
+    serializer_class = MetaPCSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
 
 # RetrieveUpdateDestroyAPIView is a multi-functional API with get, put and delete requests
 # (better to check it in browser, there is a better look with all requests)

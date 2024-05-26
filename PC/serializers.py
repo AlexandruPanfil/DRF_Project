@@ -10,10 +10,12 @@ from rest_framework import serializers
 # My serializer
 # class Meta is a class that use a model in Serializer, you can select wich fields do you need or use __all__ to access all fields
 class MetaPCSerializer(serializers.ModelSerializer):
+    # This function will hide this field and will append there the current user
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = PC
-        fields = ('title', 'content', 'cat')
-
+        # fields = ('title', 'content', 'cat')
+        fields = ('__all__')
 
 class PCSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
